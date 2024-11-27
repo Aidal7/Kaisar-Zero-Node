@@ -39,7 +39,7 @@ This script automates network or node operations and daily claim for Kaisar Zero
 	```bash
 	node setup.js
 	```
-	it will automatically register account if you don't have account `(You need to check email and open the link to verify the account, after that you can rerun again the script)`, it will automatically fill and save the needed data `[email,token,extensionid,proxy(if you use proxy, you can add manually too later)]` in the `data.txt`, it will saved and look like this:
+	it will automatically register account if you don't have account `(You need to check email and open the link to verify the account, after that you can rerun again the script)`, it will automatically fill and save the needed data `[email,token,extensionid,proxy(if you not using proxy in this process, you can add manually too later)]` in the `data.txt`, it will saved and look like this:
 	```bash
 	email1,token1,extensionid1,proxy1
 	email2,token2,extensionid2,proxy2
