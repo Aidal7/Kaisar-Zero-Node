@@ -1,7 +1,7 @@
 # Kaisar ZeroNode bot
 
 ## Description
-This script automates network or node operations and daily claim for Kaisar ZeroNode.
+This script automates registration, network or node operations and daily claim for Kaisar ZeroNode.
 
 ## Features
 - **Automated node and daily claim interaction**
