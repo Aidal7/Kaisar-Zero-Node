@@ -12,20 +12,20 @@ const COLORS = {
     WHITE: "\x1b[37m"
 };
 
-function alignTextCenter(text, width) {
+function centerAlignText(text, width) {
     const pad = Math.floor((width - text.length) / 2);
     return ' '.repeat(pad) + text + ' '.repeat(pad);
 }
 
 const consoleWidth = process.stdout.columns;
 console.log("");
-console.log(`${COLORS.BOLD_YELLOW}${alignTextCenter("============================================", consoleWidth)}${COLORS.RESET}`);
-console.log(`${COLORS.BOLD_YELLOW}${alignTextCenter("Kaisar ZeroNode", consoleWidth)}${COLORS.RESET}`);
-console.log(`${COLORS.BOLD_YELLOW}${alignTextCenter("github.com/recitativonika", consoleWidth)}${COLORS.RESET}`);
-console.log(`${COLORS.BOLD_YELLOW}${alignTextCenter("============================================", consoleWidth)}${COLORS.RESET}`);
+console.log(`${COLORS.BOLD_YELLOW}${centerAlignText("============================================", consoleWidth)}${COLORS.RESET}`);
+console.log(`${COLORS.BOLD_YELLOW}${centerAlignText("The Unique Bot Chronicles", consoleWidth)}${COLORS.RESET}`);
+console.log(`${COLORS.BOLD_YELLOW}${centerAlignText("github.com/uniquebotchronicler", consoleWidth)}${COLORS.RESET}`);
+console.log(`${COLORS.BOLD_YELLOW}${centerAlignText("============================================", consoleWidth)}${COLORS.RESET}`);
 console.log("");
 
-function fetchConfigData() {
+function fetchConfigurationData() {
     const data = fs.readFileSync('data.txt', 'utf8');
     return data.split('\n').filter(line => line.trim() !== '').map(line => {
         const [email, token, extensionId, proxy] = line.split(',');
@@ -33,7 +33,7 @@ function fetchConfigData() {
     });
 }
 
-function generateUniqueApiClient(proxy, token, useProxy) {
+function createUniqueApiClient(proxy, token, useProxy) {
     const agent = useProxy ? new HttpsProxyAgent(proxy) : undefined;
     return axios.create({
         baseURL: 'https://zero-api.kaisar.io/',
@@ -45,8 +45,8 @@ function generateUniqueApiClient(proxy, token, useProxy) {
     });
 }
 
-async function obtainMissionTasks(email, proxy, token, useProxy, accountNumber) {
-    const apiClient = generateUniqueApiClient(proxy, token, useProxy);
+async function retrieveMissionTasks(email, proxy, token, useProxy, accountNumber) {
+    const apiClient = createUniqueApiClient(proxy, token, useProxy);
 
     try {
         const response = await apiClient.get('mission/tasks');
@@ -56,38 +56,37 @@ async function obtainMissionTasks(email, proxy, token, useProxy, accountNumber) 
             .map(task => task._id);
 
         if (activeTaskIds.length > 0) {
-            console.log(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] Active tasks found with IDs: ${activeTaskIds}`);
+            console.log(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] Active tasks detected with IDs: ${activeTaskIds}`);
         }
 
         return activeTaskIds;
     } catch (error) {
-        console.error(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] Unable to retrieve mission tasks for ${COLORS.BOLD_CYAN}${email}${COLORS.RESET}`);
+        console.error(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] Failed to retrieve mission tasks for ${COLORS.BOLD_CYAN}${email}${COLORS.RESET}`);
         return null;
     }
 }
-
 async function claimMissionRewards(email, proxy, token, taskIds, useProxy, accountNumber) {
-    const apiClient = generateUniqueApiClient(proxy, token, useProxy);
+    const apiClient = createUniqueApiClient(proxy, token, useProxy);
 
     for (let taskId of taskIds) {
         try {
             const response = await apiClient.post(`mission/tasks/${taskId}/claim`, {});
             const task = response.data.data;
-            console.log(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] Claimed rewards from task ID: ${taskId}`);
+            console.log(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] Rewards successfully claimed from task ID: ${taskId}`);
         } catch (error) {
             console.error(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] Failed to claim task with ID: ${taskId} for ${COLORS.BOLD_CYAN}${email}${COLORS.RESET}`);
         }
     }
 }
 
-async function performDailyLogin(email, proxy, token, useProxy, accountNumber) {
-    const apiClient = generateUniqueApiClient(proxy, token, useProxy);
+async function executeDailyLogin(email, proxy, token, useProxy, accountNumber) {
+    const apiClient = createUniqueApiClient(proxy, token, useProxy);
 
     try {
         const response = await apiClient.post('checkin/check', {});
         const checkin = response.data.data;
         if (checkin) {
-            console.log(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] Successful daily login at: ${checkin.time} for ${COLORS.BOLD_CYAN}${email}${COLORS.RESET}`);
+            console.log(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] Successfully logged in for the day at: ${checkin.time} for ${COLORS.BOLD_CYAN}${email}${COLORS.RESET}`);
         }
     } catch (error) {
         console.error(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] Daily login for ${COLORS.BOLD_CYAN}${email}${COLORS.RESET} failed: Already logged in today.`);
@@ -95,80 +94,120 @@ async function performDailyLogin(email, proxy, token, useProxy, accountNumber) {
 }
 
 async function verifyAndClaimTasks(email, proxy, token, useProxy, accountNumber) {
-    const taskIds = await obtainMissionTasks(email, proxy, token, useProxy, accountNumber);
+    const taskIds = await retrieveMissionTasks(email, proxy, token, useProxy, accountNumber);
     if (taskIds && taskIds.length > 0) {
         await claimMissionRewards(email, proxy, token, taskIds, useProxy, accountNumber);
     } else {
         console.log(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] No tasks available to claim for ${COLORS.BOLD_CYAN}${email}${COLORS.RESET}`);
     }
 }
+
+async function fetchMiningData(apiClient, extensionId, accountNumber) {
+    try {
+        const response = await apiClient.get('/mining/current', {
+            params: { extension: extensionId }
+        });
+
+        if (response.data && response.data.data) {
+            const miningData = response.data.data;
+
+            updateMiningProgress(accountNumber, miningData);
+            await updateMiningPoints(extensionId, miningData, apiClient, accountNumber); 
+
+            if (miningData.ended === 1) {
+                console.log(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] Mining has concluded. Proceeding to claim mining points.`);
+                await claimMiningRewards(apiClient, extensionId, accountNumber);
+            }
+        }
+    } catch (error) {
+        console.error(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] Error fetching mining data: ${COLORS.RED}`, error.message || error, `${COLORS.RESET}`);
+    }
+}
+
+async function updateMiningPoints(extensionId, miningData, apiClient, accountNumber) {
+    const elapsedTimeInHours = (Date.now() - new Date(miningData.start).getTime() - miningData.miss) / 36e5;
+    const points = elapsedTimeInHours * miningData.hourly;
+    const miningPoint = Math.max(0, points);
+    const totalPoints = await checkAccountBalance(apiClient, extensionId, accountNumber);
+    console.log(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] Total Points: ${COLORS.GREEN}${totalPoints}${COLORS.RESET}, MiningPoints: ${COLORS.BOLD_CYAN}${miningPoint}${COLORS.RESET}, ElapsedTimeInHours: ${COLORS.BOLD_YELLOW}${elapsedTimeInHours}${COLORS.RESET}`);
+}
+
+function updateMiningProgress(accountNumber, miningData) {
+    const currentTime = Date.now(); 
+    const endTime = miningData.end;     
+    const remainingTime = Math.max(0, endTime - currentTime); 
+
+    console.log(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] Mining progress: EndTime: ${COLORS.BOLD_YELLOW}${endTime}${COLORS.RESET}, CurrentTime: ${COLORS.BOLD_YELLOW}${currentTime}${COLORS.RESET}, RemainingTime: ${COLORS.BOLD_YELLOW}${remainingTime}${COLORS.RESET}`);
+}
+async function claimMiningRewards(apiClient, extensionId, accountNumber) {
+    try {
+        console.log(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] Claiming mining points...`);
+        const { data } = await apiClient.post('/mining/claim', { extension: extensionId });
+        console.log(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] Claimed successfully: ${COLORS.GREEN}`, data, `${COLORS.RESET}`);
+        await initiateFarming(apiClient, extensionId, accountNumber);
+    } catch (error) {
+        
+    }
+}
+async function initiateFarming(apiClient, extensionId, accountNumber) {
+    try {
+        const response = await apiClient.post('/mining/start', {
+            extension: extensionId
+        });
+        if (response.status === 200) {
+            console.log(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] Mining initiated successfully`);
+        }
+    } catch (error) {
+        if (error.response) {
+            const { status, data } = error.response;
+            console.error(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] Error initiating mining (HTTP Error): ${COLORS.RED}`, {
+                status,
+                data
+            }, `${COLORS.RESET}`);
+
+            if (status === 412 && data.error.message === 'Mining is already in progress.') {
+                console.log(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] Mining already in progress. Skipping start process.`);
+                return; 
+            }
+        } else {
+            console.error(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] Error initiating mining: ${COLORS.RED}`, error.message || error, `${COLORS.RESET}`);
+        }
+    }
+}
+
+async function checkAccountBalance(apiClient, extensionId, accountNumber) {
+    try {
+        console.log(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] Checking account balances...`);
+        const response = await apiClient.get('/user/balances');
+        const balances = response.data.data[0].balance;
+        console.log(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] Balances: ${COLORS.GREEN}`, balances, `${COLORS.RESET}`);
+        return balances;
+    } catch (error) { 
+        console.error(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] Error checking account balances: ${COLORS.RED}`, error.message || error, `${COLORS.RESET}`);
+        return null;
+    }
+}
+
 async function executePingAndUpdate(accountNumber, email, token, proxy, useProxy) {
-    const apiClient = generateUniqueApiClient(proxy, token, useProxy);
+    const apiClient = createUniqueApiClient(proxy, token, useProxy);
 
     try {
         if (useProxy) {
-            console.log(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] ${COLORS.WHITE}Attempting to ping ${COLORS.BOLD_CYAN}${email}${COLORS.WHITE} using proxy ${COLORS.BOLD_YELLOW}${proxy}${COLORS.ORANGE}`);
+            console.log(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] Attempting to ping ${COLORS.BOLD_CYAN}${email}${COLORS.WHITE} using proxy ${COLORS.BOLD_YELLOW}${proxy}${COLORS.RESET}`);
         } else {
-            console.log(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] ${COLORS.WHITE}Attempting to ping ${COLORS.BOLD_CYAN}${email}${COLORS.WHITE} without proxy`);
+            console.log(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] Attempting to ping ${COLORS.BOLD_CYAN}${email}${COLORS.WHITE} without proxy`);
         }
         const response = await apiClient.post('/extension/ping', {
             extension: token
         });
 
-        console.log(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] ${COLORS.GREEN}Ping for ${COLORS.BOLD_CYAN}${email}${COLORS.RESET} ${COLORS.GREEN}was successful${COLORS.RESET}`);
-        await obtainMiningData(accountNumber, apiClient, email, useProxy);
+        console.log(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] ${COLORS.GREEN}Ping for ${COLORS.BOLD_CYAN}${email}${COLORS.RESET} was successful${COLORS.RESET}`);
+        await fetchMiningData(apiClient, token, accountNumber);
     } catch (error) {
         const errorMessage = useProxy ?
             `Ping failed for ${COLORS.BOLD_CYAN}${email}${COLORS.RESET} using proxy ${COLORS.BOLD_YELLOW}${proxy}${COLORS.RESET}` :
             `Ping failed for ${COLORS.BOLD_CYAN}${email}${COLORS.RESET} without proxy`;
         console.error(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] ${COLORS.RED}${errorMessage}${COLORS.RESET}`);
-    }
-}
-
-async function obtainMiningData(accountNumber, apiClient, email, useProxy, retries = 3) {
-    try {
-        const response = await apiClient.get('/mining/current', {
-            params: { extension: email }
-        });
-
-        if (response.data && response.data.data) {
-            const miningData = response.data.data;
-            await refreshMiningPoints(accountNumber, email, miningData, apiClient, useProxy);
-
-            if (miningData.ended === 1) {
-                console.log(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] ${COLORS.WHITE}Mining concluded for ${COLORS.BOLD_CYAN}${email}${COLORS.WHITE}. Proceeding to claim mining points.`);
-                await finalizeMiningClaim(apiClient, email, useProxy);
-            }
-        }
-    } catch (error) {
-        console.error(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] ${COLORS.RED}Unable to retrieve mining data for ${COLORS.BOLD_CYAN}${email}${COLORS.RESET}: ${error.message}${COLORS.RESET}`);
-
-        if (retries > 0) {
-            console.log(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] ${COLORS.WHITE}Retrying to retrieve mining data for ${COLORS.BOLD_CYAN}${email}${COLORS.WHITE} (${retries} retries left)...`);
-            await new Promise(resolve => setTimeout(resolve, 5000));
-            await obtainMiningData(accountNumber, apiClient, email, useProxy, retries - 1);
-        }
-    }
-}
-
-async function refreshMiningPoints(accountNumber, email, miningData, apiClient, useProxy) {
-    const elapsedTimeInHours = (Date.now() - new Date(miningData.start).getTime() - miningData.miss) / 36e5;
-    const points = elapsedTimeInHours * miningData.hourly;
-    const miningPoint = Math.max(0, points);
-    const totalPoints = await fetchAccountBalance(accountNumber, apiClient, email, useProxy);
-    console.log(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] ${COLORS.BOLD_CYAN}${email}${COLORS.RESET} ${COLORS.WHITE}total points: ${COLORS.GREEN}${totalPoints}${COLORS.WHITE}, Mining points: ${COLORS.BOLD_CYAN}${miningPoint}${COLORS.WHITE}, Elapsed time in hours: ${COLORS.BOLD_YELLOW}${elapsedTimeInHours}${COLORS.RESET}`);
-}
-
-async function fetchAccountBalance(accountNumber, apiClient, email, useProxy) {
-    try {
-        console.log(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] ${COLORS.WHITE}Checking account balance for ${COLORS.BOLD_CYAN}${email}${COLORS.WHITE}...`);
-        const response = await apiClient.get('/user/balances');
-        const balances = response.data.data[0].balance;
-        console.log(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] ${COLORS.WHITE}Account balance for ${COLORS.BOLD_CYAN}${email}${COLORS.WHITE}: ${COLORS.GREEN}${balances}${COLORS.RESET}`);
-        return balances;
-    } catch (error) {
-        console.error(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] ${COLORS.RED}Unable to check balance for ${COLORS.BOLD_CYAN}${email}${COLORS.RESET}: ${error.message}${COLORS.RESET}`);
-        return null;
     }
 }
 
@@ -182,32 +221,38 @@ async function fetchAccountBalance(accountNumber, apiClient, email, useProxy) {
         const useProxy = useProxyInput.trim().toLowerCase() === 'y';
         rl.close();
 
-        const config = fetchConfigData();
+        const config = fetchConfigurationData();
         if (config.length === 0) {
             console.error("No configuration found in data.txt. Exiting...");
             return;
         }
 
         const lastExecution = {};
+        const lastClaimTime = {};
 
         for (let i = 0; i < config.length; i++) {
             const { email, token, extensionId, proxy } = config[i];
-            processUniqueAccount(i + 1, email, token, extensionId, proxy, useProxy, lastExecution);
+            processAccountSequentially(i + 1, email, token, extensionId, proxy, useProxy, lastExecution, lastClaimTime);
         }
 
-        async function processUniqueAccount(accountNumber, email, token, extensionId, proxy, useProxy, lastExecution) {
+        async function processAccountSequentially(accountNumber, email, token, extensionId, proxy, useProxy, lastExecution, lastClaimTime) {
             while (true) {
                 const now = Date.now();
 
                 if (!lastExecution[token] || now - lastExecution[token] >= 24 * 60 * 60 * 1000) {
-                    await performDailyLogin(email, proxy, token, useProxy, accountNumber);
+                    await executeDailyLogin(email, proxy, token, useProxy, accountNumber);
                     await verifyAndClaimTasks(email, proxy, token, useProxy, accountNumber);
                     lastExecution[token] = now;
                 }
 
+                if (!lastClaimTime[token] || now - lastClaimTime[token] >= 4 * 60 * 60 * 1000) {
+                    await verifyAndClaimTasks(email, proxy, token, useProxy, accountNumber);
+                    lastClaimTime[token] = now;
+                }
+
                 await executePingAndUpdate(accountNumber, email, token, proxy, useProxy);
 
-                console.log(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] ${COLORS.WHITE}Pinging again in 1 minute for ${COLORS.BOLD_CYAN}${email}${COLORS.WHITE}...${COLORS.RESET}`);
+                console.log(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] Pinging again in 1 minute for ${COLORS.BOLD_CYAN}${email}${COLORS.RESET}...`);
                 await new Promise(resolve => setTimeout(resolve, 60000));
             }
         }
