@@ -6,6 +6,7 @@ This script automates registration, network or node operations and daily claim f
 ## Features
 - **Automated node and daily claim interaction**
 - **Automatic account registration**
+- **Automatic claim mining rewards**
 - **Multi account**
 - **Proxy support**
 
