@@ -40,7 +40,7 @@ This script automates registration, network or node operations and daily claim f
 	```bash
 	node setup.js
 	```
-	- it will automatically register account if you don't have account `(You need to check email and open the link to verify the account, after that you can rerun again the script)`
+- this script will automatically register account if you don't have account `(You need to check email and open the link to verify the account, after that you can rerun again the script)`
  - The `setup.js` will automatically fill and save the needed data in `data.txt`, it will look like this:
 	```bash
 	email1,token1,extensionid1,proxy1
