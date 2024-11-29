@@ -40,13 +40,13 @@ This script automates registration, network or node operations and daily claim f
 	```bash
 	node setup.js
 	```
- - this script will automatically register account if you don't have account `(You need to check email and open the link to verify the account, after that you can rerun again the script)`
- - The `setup.js` will automatically fill and save the needed data in `data.txt`, it will look like this:
+  - this script will automatically register account if you don't have account `(You need to check email and open the link to verify the account, after that you can rerun again the script)`
+  - The `setup.js` will automatically fill and save the needed data in `data.txt`, it will look like this:
 	```bash
 	email1,token1,extensionid1,proxy1
 	email2,token2,extensionid2,proxy2
 	```
-	if you not use proxy when registering account and want to use proxy when run the bot, you can add it manually
+  	if you not use proxy when registering account and want to use proxy when run the bot, you can add it manually
 4. Run the script:
 	```bash
 	node index.js
