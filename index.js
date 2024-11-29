@@ -239,7 +239,7 @@ async function executePingAndUpdate(accountNumber, email, token, proxy, useProxy
             while (true) {
                 const now = Date.now();
 
-                if (!lastExecution[token] || now - lastExecution[token] >= 24 * 60 * 60 * 1000) {
+                if (!lastExecution[token] || now - lastExecution[token] >= 12 * 60 * 60 * 1000) {
                     await executeDailyLogin(email, proxy, token, useProxy, accountNumber);
                     await verifyAndClaimTasks(email, proxy, token, useProxy, accountNumber);
                     lastExecution[token] = now;
