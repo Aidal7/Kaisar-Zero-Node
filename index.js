@@ -20,8 +20,8 @@ function centerAlignText(text, width) {
 const consoleWidth = process.stdout.columns;
 console.log("");
 console.log(`${COLORS.BOLD_YELLOW}${centerAlignText("============================================", consoleWidth)}${COLORS.RESET}`);
-console.log(`${COLORS.BOLD_YELLOW}${centerAlignText("The Unique Bot Chronicles", consoleWidth)}${COLORS.RESET}`);
-console.log(`${COLORS.BOLD_YELLOW}${centerAlignText("github.com/uniquebotchronicler", consoleWidth)}${COLORS.RESET}`);
+console.log(`${COLORS.BOLD_YELLOW}${centerAlignText("Kaisar zero node bot", consoleWidth)}${COLORS.RESET}`);
+console.log(`${COLORS.BOLD_YELLOW}${centerAlignText("github.com/recitativonika", consoleWidth)}${COLORS.RESET}`);
 console.log(`${COLORS.BOLD_YELLOW}${centerAlignText("============================================", consoleWidth)}${COLORS.RESET}`);
 console.log("");
 
