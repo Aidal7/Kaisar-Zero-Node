@@ -35,7 +35,7 @@ This script automates registration, network or node operations and daily claim f
 	email1,password2,proxy1
 	email2,password2,proxy2
 	```
-	if you dont want to use proxy, you don't need to put proxy in `data.txt`
+	if you dont want to use proxy, you don't need to put the proxy
 3. After put data in `user.txt`, run this script
 	```bash
 	node setup.js
