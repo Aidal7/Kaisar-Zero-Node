@@ -17,16 +17,16 @@ This script automates registration, network or node operations and daily claim f
 
 1. Clone the repository to your local machine:
    ```bash
-	git clone https://github.com/recitativonika/kaisar-zero-node-bot.git
+   git clone https://github.com/recitativonika/kaisar-zero-node-bot.git
    ```
 2. Navigate to the project directory:
-	```bash
-	cd kaisar-zero-node-bot
-	```
-3. Install the necessary dependencies:
-	```bash
-	npm install
-	```
+   ```bash
+   cd kaisar-zero-node-bot
+   ```
+4. Install the necessary dependencies:
+   ```bash
+   npm install
+   ```
 
 ## Usage
 1. Register to blockless bless network account first, if you don't have you can register [here](https://zero.kaisar.io/register?ref=SOXdEc181) or you can put email and password that you desire in to automatically register, check next part to do that. 
