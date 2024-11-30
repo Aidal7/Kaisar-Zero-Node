@@ -34,6 +34,10 @@ function fetchConfigurationData() {
 }
 
 function createUniqueApiClient(proxy, token, useProxy) {
+    if (useProxy && proxy && !/^https?:\/\//i.test(proxy)) {
+        proxy = `http://${proxy}`;
+    }
+
     const agent = useProxy ? new HttpsProxyAgent(proxy) : undefined;
     return axios.create({
         baseURL: 'https://zero-api.kaisar.io/',
@@ -61,7 +65,7 @@ async function retrieveMissionTasks(email, proxy, token, useProxy, accountNumber
 
         return activeTaskIds;
     } catch (error) {
-        console.error(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] Failed to retrieve mission tasks for ${COLORS.BOLD_CYAN}${email}${COLORS.RESET}`);
+        console.error(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] ${COLORS.RED}Failed to retrieve mission tasks for ${COLORS.BOLD_CYAN}${email}${COLORS.RESET}${COLORS.RESET}`);
         return null;
     }
 }
@@ -89,7 +93,7 @@ async function executeDailyLogin(email, proxy, token, useProxy, accountNumber) {
             console.log(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] Successfully logged in for the day at: ${checkin.time} for ${COLORS.BOLD_CYAN}${email}${COLORS.RESET}`);
         }
     } catch (error) {
-        console.error(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] Daily login for ${COLORS.BOLD_CYAN}${email}${COLORS.RESET} failed: Already logged in today.`);
+        console.error(`[${COLORS.BOLD_CYAN}${accountNumber}${COLORS.RESET}] ${COLORS.RED}Daily login for ${COLORS.BOLD_CYAN}${email}${COLORS.RESET} failed: Error or already logged in today.${COLORS.RESET}`);
     }
 }
 
