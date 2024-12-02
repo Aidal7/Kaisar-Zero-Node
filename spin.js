@@ -4,18 +4,15 @@ const path = require('path');
 const { HttpsProxyAgent } = require('https-proxy-agent');
 const readline = require('readline');
 
-// ANSI escape codes for styling
 const yellow = '\x1b[33m';
 const bold = '\x1b[1m';
 const reset = '\x1b[0m';
 
-// Function to center align text
 function centerAlignText(text, width) {
     const pad = Math.floor((width - text.length) / 2);
     return ' '.repeat(pad) + text + ' '.repeat(pad);
 }
 
-// Display header
 const consoleWidth = process.stdout.columns;
 console.log("");
 console.log(`${bold}${yellow}${centerAlignText("============================================", consoleWidth)}${reset}`);
@@ -24,7 +21,6 @@ console.log(`${bold}${yellow}${centerAlignText("github.com/recitativonika", cons
 console.log(`${bold}${yellow}${centerAlignText("============================================", consoleWidth)}${reset}`);
 console.log("");
 
-// Read data from data.txt
 const dataFilePath = path.join(__dirname, 'data.txt');
 const accounts = fs.readFileSync(dataFilePath, 'utf-8').trim().split('\n').map(line => line.split(','));
 
@@ -57,7 +53,7 @@ async function getTicketBalance(email, token, proxyAgent) {
         } else {
             console.error(`Error fetching ticket balance for ${email}:`, error.message);
         }
-        return 0; // Return 0 to stop spinning in case of an error
+        return 0;
     }
 }
 
@@ -89,7 +85,7 @@ async function automateSpinning(email, token, proxyAgent) {
 
     while (ticketBalance > 0) {
         await spinTicket(email, token, proxyAgent);
-        await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for 5 seconds
+        await new Promise(resolve => setTimeout(resolve, 5000));
         ticketBalance = await getTicketBalance(email, token, proxyAgent);
     }
 
@@ -103,7 +99,7 @@ async function main() {
 
     if (autoRestart.toLowerCase() === 'y') {
         const hours = await askQuestion('Enter the number of hours for auto-restart: ');
-        interval = parseFloat(hours) * 3600000; // Convert hours to milliseconds
+        interval = parseFloat(hours) * 3600000;
     }
 
     for (const [email, token, extensionId, proxyString] of accounts) {
