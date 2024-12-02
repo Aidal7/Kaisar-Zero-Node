@@ -105,7 +105,11 @@ async function main() {
     for (const [email, token, extensionId, proxyString] of accounts) {
         let proxyAgent = null;
         if (useProxy.toLowerCase() === 'y') {
-            proxyAgent = new HttpsProxyAgent(`http://${proxyString}`);
+            let proxyUrl = proxyString;
+            if (!proxyUrl.startsWith('http://') && !proxyUrl.startsWith('https://')) {
+                proxyUrl = `http://${proxyUrl}`;
+            }
+            proxyAgent = new HttpsProxyAgent(proxyUrl);
         }
 
         await automateSpinning(email, token, proxyAgent);
@@ -117,8 +121,12 @@ async function main() {
             for (const [email, token, extensionId, proxyString] of accounts) {
                 let proxyAgent = null;
                 if (useProxy.toLowerCase() === 'y') {
-                    console.log(`Using proxy: ${proxyString}`);
-                    proxyAgent = new HttpsProxyAgent(`http://${proxyString}`)
+                    let proxyUrl = proxyString;
+                    if (!proxyUrl.startsWith('http://') && !proxyUrl.startsWith('https://')) {
+                        proxyUrl = `http://${proxyUrl}`;
+                    }
+                    console.log(`Using proxy: ${proxyUrl}`);
+                    proxyAgent = new HttpsProxyAgent(proxyUrl);
                 }
                 console.log(`Restarting script for ${email}...`);
                 automateSpinning(email, token, proxyAgent);
@@ -128,5 +136,7 @@ async function main() {
 
     rl.close();
 }
+
+main();
 
 main();
