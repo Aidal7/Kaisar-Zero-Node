@@ -139,7 +139,7 @@ async function loginUser(email, password, proxy, useProxy) {
 
 async function registerUser(email, password, proxy, useProxy) {
     const apiClient = createApiClient(proxy, useProxy);
-    const referralCode = 'SOXdEc181';
+    const referralCode = 'wQedXA449';
 
     try {
         const response = await apiClient.post('/auth/register', { email, password, referrer: referralCode });
